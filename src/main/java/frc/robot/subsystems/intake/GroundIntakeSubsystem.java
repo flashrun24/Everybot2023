@@ -5,9 +5,6 @@
 package frc.robot.subsystems.intake;
 
 import frc.robot.Constants;
-import frc.robot.Constants.CanIds;
-
-import com.playingwithfusion.CANVenom.BrakeCoastMode;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
@@ -21,8 +18,8 @@ public class GroundIntakeSubsystem extends SubsystemBase {
   
   public GroundIntakeSubsystem() {
     //replace with constants later
-    left = new CANSparkMax(CanIds.leftIntake.id, MotorType.kBrushless);
-    right = new CANSparkMax(CanIds.rightIntake.id, MotorType.kBrushless);
+    left = new CANSparkMax(Constants.GroundIntakeConstants.leftIntakeID, MotorType.kBrushless);
+    right = new CANSparkMax(Constants.GroundIntakeConstants.leftIntakeID, MotorType.kBrushless);
 
 
     // left.setInverted(false);

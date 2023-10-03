@@ -4,78 +4,113 @@
 
 package frc.robot.subsystems.drive;
 
-import edu.wpi.first.math.geometry.Pose2d;
+import com.kauailabs.navx.frc.AHRS;
+
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.SerialPort;
+import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 import frc.robot.Constants.SwerveConstants;
-import frc.robot.subsystems.gyro.GyroSubsystem;
 
 public class DriveBaseSubsystem extends SubsystemBase {
-  /** Creates a new DriveBaseSubsystem2. */
-  private SwerveModule[] swerveModules;
-  private SwerveDriveKinematics m_kinematics;
+  /** Creates a new DriveBaseSubsystem. */
   private SwerveDriveOdometry m_odometry;
-  private GyroSubsystem gyro;
-  private SwerveModulePosition[] positions;
-  
-
-  public DriveBaseSubsystem(GyroSubsystem gyro) {
-    swerveModules = new SwerveModule[] {
-    new SwerveModule(SwerveConstants.swerve0.turnMotorID, SwerveConstants.swerve0.speedMotorID, SwerveConstants.swerve0.turnEncoderID),
-    new SwerveModule(SwerveConstants.swerve1.turnMotorID, SwerveConstants.swerve1.speedMotorID, SwerveConstants.swerve1.turnEncoderID),
-    new SwerveModule(SwerveConstants.swerve2.turnMotorID, SwerveConstants.swerve2.speedMotorID, SwerveConstants.swerve2.turnEncoderID),
-    new SwerveModule(SwerveConstants.swerve3.turnMotorID, SwerveConstants.swerve3.speedMotorID, SwerveConstants.swerve3.turnEncoderID),
-  };
-  positions = new SwerveModulePosition[4];
-  positions[0] = getSwerveModule(0).getPosition();
-  positions[1] = getSwerveModule(1).getPosition();
-  positions[2] = getSwerveModule(2).getPosition();
-  positions[3] = getSwerveModule(3).getPosition();
-  //TODO: we need the gyro and the module pos for odometry
-  this.gyro = gyro;
-  m_odometry = new SwerveDriveOdometry(m_kinematics, new Rotation2d(gyro.getAngle()), positions, new Pose2d(0, 0, new Rotation2d(0)));
-  m_kinematics = new SwerveDriveKinematics(SwerveConstants.swerve0.location, SwerveConstants.swerve1.location, SwerveConstants.swerve2.location, SwerveConstants.swerve3.location); }
-  public SwerveModule getSwerveModule(int index) {
-    return swerveModules[index];
+  private AHRS gyro;
+  private final SwerveModule frontLeft = new SwerveModule(Constants.SwerveConstants.frontLeft.driveMotorID,
+                                                          Constants.SwerveConstants.frontLeft.turnMotorID,
+                                                          Constants.SwerveConstants.frontLeft.turnEncoderID);
+  private final SwerveModule frontRight = new SwerveModule(Constants.SwerveConstants.frontRight.driveMotorID,
+                                                          Constants.SwerveConstants.frontRight.turnMotorID,
+                                                          Constants.SwerveConstants.frontRight.turnEncoderID);
+  private final SwerveModule backLeft = new SwerveModule(Constants.SwerveConstants.backLeft.driveMotorID,
+                                                          Constants.SwerveConstants.backLeft.turnMotorID,
+                                                          Constants.SwerveConstants.backLeft.turnEncoderID);
+  private final SwerveModule backRight = new SwerveModule(Constants.SwerveConstants.backRight.driveMotorID,
+                                                          Constants.SwerveConstants.backRight.turnMotorID,
+                                                          Constants.SwerveConstants.backRight.turnEncoderID);
+  public SwerveModulePosition[] getSwerveModulePositions() {
+    return new SwerveModulePosition[]{frontLeft.getPosition(), frontRight.getPosition(), backLeft.getPosition(), backRight.getPosition()};
   }
-  public SwerveDriveKinematics getSwerveDriveKinematics() {
-    return m_kinematics;
+  public DriveBaseSubsystem() {
+    try { //for now just do what 7419 did. pretty sure MXP refers to the expansion port on the roborio
+      /*
+       * Communicate w/navX-MXP via the MXP SPI Bus (use mini USB to USB A cable)
+       * Alternatively: I2C.Port.kMXP, SerialPort.Port.kMXP or S
+       * See http://navx-mxp.kauailabs.com/guidance/selecting-an-interface/ for
+       * details.
+       */
+      gyro = new AHRS(SerialPort.Port.kMXP);
+      SmartDashboard.putString("subsystem", "init gyro sub");
+    } 
+    catch (RuntimeException ex) {
+      DriverStation.reportError("Error instantiating navX-MXP:  " + ex.getMessage(), true);
+    }
+    m_odometry = new SwerveDriveOdometry(Constants.SwerveConstants.swerveDriveKinematics, getGryoRotation2d(), getSwerveModulePositions());
   }
-
-  public void coast(){
-    getSwerveModule(0).coast();
-    getSwerveModule(1).coast();
-    getSwerveModule(2).coast();
-    getSwerveModule(3).coast();
+  public double getAngle(){
+    return gyro.getAngle();
   }
-
-  public void brake(){
-    getSwerveModule(0).brake();
-    getSwerveModule(1).brake();
-    getSwerveModule(2).brake();
-    getSwerveModule(3).brake();
+  public double getYaw() {
+    return gyro.getYaw();
   }
-
-  public void setAllPower(double power){
-    getSwerveModule(0).setPower(power);
-    getSwerveModule(1).setPower(power);
-    getSwerveModule(2).setPower(power);
-    getSwerveModule(3).setPower(power);
+  public double getPitch() {
+    return gyro.getPitch();
   }
-
-  public SwerveModule[] getSwerveModules() {
-    return swerveModules;
+  public double getRoll() {
+    return gyro.getRoll();
   }
-  //call odometry update in this periodic
+  public void resetGyro() {
+    gyro.reset();
+  }
+  public void resetYaw(){
+    gyro.zeroYaw();
+  }
+  public void calibrateGyro(){
+    gyro.calibrate();
+  }
+  public Rotation2d getGryoRotation2d() {
+    return Rotation2d.fromDegrees(gyro.getYaw());
+    /*the thing is .getYaw is -180 to 180 so it not being 0 to 360 
+    may cause the internal conversion that Rotation2d does to be wrong 
+    */
+  }
+  public void setModuleStates(SwerveModuleState[] moduleStates) {
+    frontLeft.setSwerveModuleState(moduleStates[0]);
+    frontRight.setSwerveModuleState(moduleStates[1]);
+    backLeft.setSwerveModuleState(moduleStates[2]);
+    backRight.setSwerveModuleState(moduleStates[3]);
+  }
+  public ChassisSpeeds getChassisSpeedsFromJoystick(XboxController joystick) {
+    //Make sure there is no joystick drift, YOU CAN REMOVE Deadband if it's not necessary
+    double vx = MathUtil.applyDeadband(joystick.getLeftX(), 0.02)*SwerveConstants.maxSpeed;
+    double vy = MathUtil.applyDeadband(joystick.getLeftY(), 0.02)*SwerveConstants.maxSpeed * -1;
+    double rx = MathUtil.applyDeadband(joystick.getRightX(), 0.02)*SwerveConstants.maxSpeed;
+    //WPILIB does the Field-Relative Conversions for you, easy peasy
+    ChassisSpeeds speeds = ChassisSpeeds.fromFieldRelativeSpeeds(vx, vy, rx, gyro.getRotation2d());
+    return speeds;
+  }
+  public SwerveModuleState[] ChassisSpeedstoModuleSpeeds(ChassisSpeeds chassisSpeeds) {
+    return Constants.SwerveConstants.swerveDriveKinematics.toSwerveModuleStates(chassisSpeeds);
+  }
+  public void setModuleStatesFromChassisSpeed(ChassisSpeeds chassisSpeeds) {
+    setModuleStates(ChassisSpeedstoModuleSpeeds(chassisSpeeds));
+  }
+  public void setModuleStatesFromJoystick(XboxController joystick) {
+    setModuleStatesFromChassisSpeed(getChassisSpeedsFromJoystick(joystick));
+  }
   @Override
   public void periodic() {
-    positions[0] = getSwerveModule(0).getPosition();
-    positions[1] = getSwerveModule(1).getPosition();
-    positions[2] = getSwerveModule(2).getPosition();
-    positions[3] = getSwerveModule(3).getPosition();
-    m_odometry.update(new Rotation2d(gyro.getAngle()), positions);
+    SmartDashboard.putNumber(   "Yaw", gyro.getYaw());
+    SmartDashboard.putNumber(   "Pitch", gyro.getPitch());
+    SmartDashboard.putNumber(   "Roll", gyro.getRoll());
+    m_odometry.update(getGryoRotation2d(), getSwerveModulePositions());
   }
 }

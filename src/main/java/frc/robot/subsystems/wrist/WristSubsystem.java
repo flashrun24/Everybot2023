@@ -17,7 +17,7 @@ public class WristSubsystem extends SubsystemBase {
   private CANSparkMax wrist;
   
   public WristSubsystem() {
-    wrist = new CANSparkMax(Constants.CanIds.wrist.id, MotorType.kBrushless);
+    wrist = new CANSparkMax(Constants.WristConstants.wristCanID, MotorType.kBrushless);
   }
 
   @Override
