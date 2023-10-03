@@ -48,8 +48,6 @@ public final class Constants {
         public static final double anglekP = 0.6;
         public static final int pigeonID = 0;
         //TODO: set the correct turnEncoder IDs
-        //TODO: instead of swerve0, swerve1, swerve2, and swerve3 set the correct name like frontleft, frontright, backleft, etc..
-        //TODO: make sure postions are correct and agree with info below
         //INFO: according to WPILib docs "The locations for the modules must be relative to the center of the robot. Positive x
         //values represent moving toward the front of the robot whereas positive y values represent moving toward the left of the robot." 
         public static final SwerveModuleConstants frontLeft = new SwerveModuleConstants(

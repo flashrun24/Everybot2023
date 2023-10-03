@@ -4,18 +4,18 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-import frc.robot.subsystems.intake.GroundIntakeSubsystem;
-import frc.robot.subsystems.intake.RunGroundIntake;
-import frc.robot.subsystems.intake.RunGroundIntakeUntilHolding;
-import frc.robot.subsystems.intake.RunGroundOuttake;
-import frc.robot.subsystems.intake.RunGroundIntakeWithJoystick;
-import frc.robot.subsystems.wrist.WristSubsystem;
-import frc.robot.subsystems.wrist.WristToPosition;
-import frc.robot.subsystems.wrist.RunWristWithJoystick;
-import frc.robot.subsystems.arm.ArmSubsystem;
-import frc.robot.subsystems.arm.RunArmWithJoystick;
-import frc.robot.subsystems.drive.DriveBaseSubsystem;
-import frc.robot.subsystems.drive.SwerveDriveFieldCentric;
+import frc.robot.commands.arm.RunArmWithJoystick;
+import frc.robot.commands.drive.SwerveDriveFieldCentric;
+import frc.robot.commands.intake.RunGroundIntake;
+import frc.robot.commands.intake.RunGroundIntakeUntilHolding;
+import frc.robot.commands.intake.RunGroundIntakeWithJoystick;
+import frc.robot.commands.intake.RunGroundOuttake;
+import frc.robot.commands.wrist.RunWristWithJoystick;
+import frc.robot.commands.wrist.WristToPosition;
+import frc.robot.subsystems.ArmSubsystem;
+import frc.robot.subsystems.DriveBaseSubsystem;
+import frc.robot.subsystems.GroundIntakeSubsystem;
+import frc.robot.subsystems.WristSubsystem;
 
 
 public class RobotContainer {
