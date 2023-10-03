@@ -21,7 +21,6 @@ import edu.wpi.first.math.util.Units;
  */
 public final class Constants {
     public static class SwerveConstants {
-        public static final SwerveDriveKinematics swerveDriveKinematics = new SwerveDriveKinematics(); // TODO: Needs to be changed to accurate swerve Kinematics
         //Not sure how to calculate this theoretically but this needs to be determined experimentally first
         public static double maxSpeed = 2.0;
         /*
@@ -58,6 +57,7 @@ public final class Constants {
           6, 5, 0, new Translation2d(-RobotConstants.HALF_LENGTH, RobotConstants.HALF_LENGTH));
         public static final SwerveModuleConstants backRight = new SwerveModuleConstants(
           8, 7, 0, new Translation2d(-RobotConstants.HALF_LENGTH, -RobotConstants.HALF_LENGTH));
+        public static final SwerveDriveKinematics swerveDriveKinematics = new SwerveDriveKinematics(frontLeft.location, frontRight.location, backLeft.location, backRight.location);
       }
       public static class SwerveModuleConstants {
         public int driveMotorID;
